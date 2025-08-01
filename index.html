@@ -478,9 +478,66 @@
 		</section>
 		<!-- Main Sllider Start -->
 
-                                            <div id="events-container">
-                                                <!-- Dynamic events will be loaded here -->
-                                            </div>
+         <!--About One Start-->
+         <section class="about-one">
+            <div class="container">
+                <div class="row">
+                    <div class="col-xl-6">
+                        <div class="about-one__right">
+                            <div class="section-title text-left">
+                                
+                                <span class="section-title__tagline">Welcome ECN</span>
+                                <h2 class="section-title__title">Who are we?</h2>
+                            </div>
+                            <p class="about-one__text">The Energy Commission of Nigeria came to being through the enabling Act No. 62 of 1979,
+                                as amended by Act No. 32 of 1988 and Act No. 19 of 1989.</p>
+
+                            <div class="about-one__icon-and-big-text">
+                                <div class="about-one__icon">
+                                    <span class="icon-cityscape"></span>
+                                </div>
+                                <p class="about-one__big-text">ECN is the apex government organ empowered to carry 
+                                    out overall energy sector planning and policy implementation.</p>
+                            </div>
+                            <p class="about-one__text-2">The Commission commenced operation in 1989 after the meeting of the Heads of ECOWAS on 
+                                29th May 1982 in Cotonou, where a decision was taken that each member state should establish by law,a body within 
+                                the machinery of government, to be charged with the responsibility for coordinating and supervising all energy 
+                                functions and activities within each Member State and may be called ENERGY COMMISSION of each Member State 
+                                (see for Official Journal of ECOWAS, Protocols, Decisions & Directives, Vol. 4, June 1982, pg 50).</p>
+                            
+                        </div>
+                    </div>
+                    <div class="col-xl-6">
+                        <div class="about-one__left">
+                            <div class="about-one__shape-1 float-bob-x">
+                                <img src="assets/images/shapes/about-one-shape-1.png" alt="">
+                            </div>
+                            
+                            <div class="about-one__img-box">
+                                <div class="about-one__img">
+                                    <img src="assets/images/resources/about-one-img-1.jpg" alt="">
+                                </div>
+                                <div class="about-one__img-2">
+                                    <img src="assets/images/resources/about-one-img-2.png" alt="">
+                                </div>
+                                <div class="about-one__shape-2">
+                                    <img src="assets/images/shapes/about-one-shape-2.png" alt="">
+                                </div>
+                                <div class="about-one__video-link">
+                                    <a href="#" class="video-popup">
+                                        <div class="about-one__video-icon">
+                                            <span class="fa fa-play"></span>
+                                            <i class="ripple"></i>
+                                        </div>
+                                    </a>
+                                </div>
+                                <div class="about-one__call-box">
+                                    <div class="about-one__call-icon">
+                                        <span class="icon-government-1"></span>
+                                    </div>
+                                    <div class="about-one__call-box-content">
+                                        <p class="about-one__call-text">More info?</p>
+                                        <h4 class="about-one__call-number"><a href="tel:9212340800">see ECN Act.</a>
                                         </h4>
                                     </div>
                                 </div>
@@ -1420,6 +1477,166 @@
 
     <!-- template js -->
     <script src="assets/js/govity.js"></script>
+    
+    <script>
+        // Load dynamic announcements
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load announcements
+            fetch('api/get-announcements.php')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.announcements.length > 0) {
+                        const announcementsContainer = document.getElementById('announcements-container');
+                        announcementsContainer.innerHTML = '';
+                        
+                        data.announcements.slice(0, 3).forEach((announcement, index) => {
+                            const delay = (index + 1) * 100;
+                            const announcementHtml = `
+                                <div class="col-xl-4 col-lg-6 col-md-6 wow fadeInUp" data-wow-delay="${delay}ms">
+                                    <div class="news-one__single">
+                                        <div class="news-one__img">
+                                            <img src="${announcement.image || 'assets/images/blog/news-1-1.jpg'}" alt="">
+                                            <div class="news-one__tag">
+                                                <p>${announcement.category}</p>
+                                            </div>
+                                        </div>
+                                        <div class="news-one__content">
+                                            <ul class="news-one__meta list-unstyled">
+                                                <li>
+                                                    <div class="icon">
+                                                        <span class="icon-calendar"></span>
+                                                    </div>
+                                                    <div class="text">
+                                                        <p>${new Date(announcement.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                                                    </div>
+                                                </li>
+                                                <li>
+                                                    <div class="icon">
+                                                        <span class="icon-user"></span>
+                                                    </div>
+                                                    <div class="text">
+                                                        <p>By Admin</p>
+                                                    </div>
+                                                </li>
+                                            </ul>
+                                            <h3 class="news-one__title"><a href="#">${announcement.title}</a></h3>
+                                            <p class="news-one__text">${announcement.excerpt}</p>
+                                            <div class="news-one__btn">
+                                                <a href="#">Read More</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                            announcementsContainer.innerHTML += announcementHtml;
+                        });
+                    }
+                })
+                .catch(error => console.error('Error loading announcements:', error));
+
+            // Load events
+            fetch('api/get-events.php')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.events.length > 0) {
+                        const eventsContainer = document.getElementById('events-container');
+                        eventsContainer.innerHTML = '';
+                        
+                        data.events.slice(0, 2).forEach(event => {
+                            const eventHtml = `
+                                <div class="event-one__single">
+                                    <div class="event-one__img">
+                                        <img src="${event.image || 'assets/images/events/event-1-1.jpg'}" alt="">
+                                    </div>
+                                    <div class="event-one__content">
+                                        <ul class="event-one__meta list-unstyled">
+                                            <li>
+                                                <div class="icon">
+                                                    <span class="icon-calendar"></span>
+                                                </div>
+                                                <div class="text">
+                                                    <p>${new Date(event.event_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                                                </div>
+                                            </li>
+                                            ${event.location ? `
+                                            <li>
+                                                <div class="icon">
+                                                    <span class="icon-pin"></span>
+                                                </div>
+                                                <div class="text">
+                                                    <p>${event.location}</p>
+                                                </div>
+                                            </li>
+                                            ` : ''}
+                                        </ul>
+                                        <h3 class="event-one__title"><a href="#">${event.title}</a></h3>
+                                        <p class="event-one__text">${event.excerpt}</p>
+                                    </div>
+                                    <div class="event-one__tag">
+                                        <p>${event.featured ? 'Featured' : 'Event'}</p>
+                                    </div>
+                                </div>
+                            `;
+                            eventsContainer.innerHTML += eventHtml;
+                        });
+                    }
+                })
+                .catch(error => console.error('Error loading events:', error));
+
+            // Load latest news
+            fetch('api/get-news.php')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.news.length > 0) {
+                        const latestNewsContainer = document.getElementById('latest-news-container');
+                        latestNewsContainer.innerHTML = '';
+                        
+                        data.news.slice(0, 3).forEach((article, index) => {
+                            const delay = (index + 1) * 100;
+                            const newsHtml = `
+                                <div class="col-xl-4 col-lg-6 col-md-6 wow fadeInUp" data-wow-delay="${delay}ms">
+                                    <div class="news-one__single">
+                                        <div class="news-one__img">
+                                            <img src="${article.thumbnail || 'assets/images/blog/news-1-1.jpg'}" alt="">
+                                            <div class="news-one__tag">
+                                                <p>${article.category}</p>
+                                            </div>
+                                        </div>
+                                        <div class="news-one__content">
+                                            <ul class="news-one__meta list-unstyled">
+                                                <li>
+                                                    <div class="icon">
+                                                        <span class="icon-calendar"></span>
+                                                    </div>
+                                                    <div class="text">
+                                                        <p>${new Date(article.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                                                    </div>
+                                                </li>
+                                                <li>
+                                                    <div class="icon">
+                                                        <span class="icon-user"></span>
+                                                    </div>
+                                                    <div class="text">
+                                                        <p>By ${article.author}</p>
+                                                    </div>
+                                                </li>
+                                            </ul>
+                                            <h3 class="news-one__title"><a href="news-detail.php?slug=${article.slug}">${article.title}</a></h3>
+                                            <p class="news-one__text">${article.excerpt}</p>
+                                            <div class="news-one__btn">
+                                                <a href="news-detail.php?slug=${article.slug}">Read More</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                            latestNewsContainer.innerHTML += newsHtml;
+                        });
+                    }
+                })
+                .catch(error => console.error('Error loading latest news:', error));
+        });
+    </script>
 </body>
 
 </html>
