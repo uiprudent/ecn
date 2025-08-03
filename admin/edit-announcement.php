@@ -3,8 +3,23 @@ require_once '../config/database.php';
 
 $message = '';
 $error = '';
+$announcement = null;
 
-if ($_POST) {
+// Get announcement ID
+$id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+
+if ($id) {
+    $stmt = $pdo->prepare("SELECT * FROM announcements WHERE id = ?");
+    $stmt->execute([$id]);
+    $announcement = $stmt->fetch();
+    
+    if (!$announcement) {
+        header('Location: announcements.php');
+        exit;
+    }
+}
+
+if ($_POST && $announcement) {
     $title = trim($_POST['title']);
     $excerpt = trim($_POST['excerpt']);
     $content = trim($_POST['content']);
@@ -15,66 +30,50 @@ if ($_POST) {
     // Generate slug from title
     $slug = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $title)));
     
-    // Handle thumbnail upload
-    $thumbnail = '';
-    if (isset($_FILES['thumbnail']) && $_FILES['thumbnail']['error'] == 0) {
-        $uploadDir = '../uploads/thumbnails/';
+    // Handle image upload
+    $image = $announcement['image'];
+    if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
+        $uploadDir = '../uploads/announcements/';
         if (!file_exists($uploadDir)) {
             mkdir($uploadDir, 0777, true);
         }
         
-        $fileExtension = pathinfo($_FILES['thumbnail']['name'], PATHINFO_EXTENSION);
-        $fileName = $slug . '-thumb.' . $fileExtension;
+        $fileExtension = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
+        $fileName = $slug . '-announcement.' . $fileExtension;
         $uploadPath = $uploadDir . $fileName;
         
-        if (move_uploaded_file($_FILES['thumbnail']['tmp_name'], $uploadPath)) {
-            $thumbnail = 'uploads/thumbnails/' . $fileName;
-        }
-    }
-    
-    // Handle gallery images
-    $gallery = [];
-    if (isset($_FILES['gallery']) && !empty($_FILES['gallery']['name'][0])) {
-        $galleryDir = '../uploads/gallery/';
-        if (!file_exists($galleryDir)) {
-            mkdir($galleryDir, 0777, true);
-        }
-        
-        foreach ($_FILES['gallery']['name'] as $key => $name) {
-            if ($_FILES['gallery']['error'][$key] == 0) {
-                $fileExtension = pathinfo($name, PATHINFO_EXTENSION);
-                $fileName = $slug . '-gallery-' . ($key + 1) . '.' . $fileExtension;
-                $uploadPath = $galleryDir . $fileName;
-                
-                if (move_uploaded_file($_FILES['gallery']['tmp_name'][$key], $uploadPath)) {
-                    $gallery[] = 'uploads/gallery/' . $fileName;
-                }
+        if (move_uploaded_file($_FILES['image']['tmp_name'], $uploadPath)) {
+            // Delete old image
+            if ($image && file_exists('../' . $image)) {
+                unlink('../' . $image);
             }
+            $image = 'uploads/announcements/' . $fileName;
         }
     }
     
     try {
-        $stmt = $pdo->prepare("INSERT INTO news (title, slug, excerpt, content, thumbnail, gallery, category, status, featured) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt = $pdo->prepare("UPDATE announcements SET title = ?, slug = ?, excerpt = ?, content = ?, image = ?, category = ?, status = ?, featured = ?, updated_at = NOW() WHERE id = ?");
         $stmt->execute([
             $title,
             $slug,
             $excerpt,
             $content,
-            $thumbnail,
-            json_encode($gallery),
+            $image,
             $category,
             $status,
-            $featured
+            $featured,
+            $id
         ]);
         
-        $message = 'News article created successfully!';
+        $message = 'Announcement updated successfully!';
         
-        // Redirect after successful creation
-        header('Location: index.php');
-        exit;
+        // Refresh announcement data
+        $stmt = $pdo->prepare("SELECT * FROM announcements WHERE id = ?");
+        $stmt->execute([$id]);
+        $announcement = $stmt->fetch();
         
     } catch(PDOException $e) {
-        $error = 'Error creating article: ' . $e->getMessage();
+        $error = 'Error updating announcement: ' . $e->getMessage();
     }
 }
 ?>
@@ -83,7 +82,7 @@ if ($_POST) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create News Article - ECN Admin</title>
+    <title>Edit Announcement - ECN Admin</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.ckeditor.com/4.16.2/standard/ckeditor.js"></script>
@@ -144,8 +143,8 @@ if ($_POST) {
             <div class="col-md-9 col-lg-10 main-content">
                 <div class="p-4">
                     <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h2>Create New Article</h2>
-                        <a href="index.php" class="btn btn-secondary">
+                        <h2>Edit Announcement</h2>
+                        <a href="announcements.php" class="btn btn-secondary">
                             <i class="fas fa-arrow-left me-2"></i> Back to List
                         </a>
                     </div>
@@ -158,6 +157,7 @@ if ($_POST) {
                         <div class="alert alert-danger"><?php echo $error; ?></div>
                     <?php endif; ?>
 
+                    <?php if ($announcement): ?>
                     <div class="card">
                         <div class="card-body">
                             <form method="POST" enctype="multipart/form-data">
@@ -165,18 +165,18 @@ if ($_POST) {
                                     <div class="col-md-8">
                                         <div class="mb-3">
                                             <label for="title" class="form-label">Title *</label>
-                                            <input type="text" class="form-control" id="title" name="title" required>
+                                            <input type="text" class="form-control" id="title" name="title" 
+                                                   value="<?php echo htmlspecialchars($announcement['title']); ?>" required>
                                         </div>
 
                                         <div class="mb-3">
                                             <label for="excerpt" class="form-label">Excerpt</label>
-                                            <textarea class="form-control" id="excerpt" name="excerpt" rows="3" 
-                                                      placeholder="Brief description of the article..."></textarea>
+                                            <textarea class="form-control" id="excerpt" name="excerpt" rows="3"><?php echo htmlspecialchars($announcement['excerpt']); ?></textarea>
                                         </div>
 
                                         <div class="mb-3">
                                             <label for="content" class="form-label">Content *</label>
-                                            <textarea class="form-control" id="content" name="content" rows="10" required></textarea>
+                                            <textarea class="form-control" id="content" name="content" rows="10" required><?php echo htmlspecialchars($announcement['content']); ?></textarea>
                                         </div>
                                     </div>
 
@@ -184,56 +184,58 @@ if ($_POST) {
                                         <div class="mb-3">
                                             <label for="status" class="form-label">Status</label>
                                             <select class="form-select" id="status" name="status">
-                                                <option value="published">Published</option>
-                                                <option value="draft">Draft</option>
+                                                <option value="published" <?php echo $announcement['status'] == 'published' ? 'selected' : ''; ?>>Published</option>
+                                                <option value="draft" <?php echo $announcement['status'] == 'draft' ? 'selected' : ''; ?>>Draft</option>
                                             </select>
                                         </div>
 
                                         <div class="mb-3">
                                             <label for="category" class="form-label">Category</label>
                                             <select class="form-select" id="category" name="category">
-                                                <option value="News">News</option>
-                                                <option value="Events">Events</option>
-                                                <option value="Energy Policy">Energy Policy</option>
-                                                <option value="Research">Research</option>
-                                                <option value="Technology">Technology</option>
-                                                <option value="Renewable Energy">Renewable Energy</option>
+                                                <option value="General" <?php echo $announcement['category'] == 'General' ? 'selected' : ''; ?>>General</option>
+                                                <option value="Policy" <?php echo $announcement['category'] == 'Policy' ? 'selected' : ''; ?>>Policy</option>
+                                                <option value="Research" <?php echo $announcement['category'] == 'Research' ? 'selected' : ''; ?>>Research</option>
+                                                <option value="Training" <?php echo $announcement['category'] == 'Training' ? 'selected' : ''; ?>>Training</option>
+                                                <option value="Procurement" <?php echo $announcement['category'] == 'Procurement' ? 'selected' : ''; ?>>Procurement</option>
+                                                <option value="Recruitment" <?php echo $announcement['category'] == 'Recruitment' ? 'selected' : ''; ?>>Recruitment</option>
                                             </select>
                                         </div>
 
                                         <div class="mb-3">
                                             <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" id="featured" name="featured">
+                                                <input class="form-check-input" type="checkbox" id="featured" name="featured" 
+                                                       <?php echo $announcement['featured'] ? 'checked' : ''; ?>>
                                                 <label class="form-check-label" for="featured">
-                                                    Featured Article
+                                                    Featured Announcement
                                                 </label>
                                             </div>
                                         </div>
 
                                         <div class="mb-3">
-                                            <label for="thumbnail" class="form-label">Thumbnail Image</label>
-                                            <input type="file" class="form-control" id="thumbnail" name="thumbnail" 
-                                                   accept="image/*" onchange="previewThumbnail(this)">
-                                            <div id="thumbnail-preview"></div>
-                                        </div>
-
-                                        <div class="mb-3">
-                                            <label for="gallery" class="form-label">Gallery Images (Optional)</label>
-                                            <input type="file" class="form-control" id="gallery" name="gallery[]" 
-                                                   accept="image/*" multiple onchange="previewGallery(this)">
-                                            <div id="gallery-preview"></div>
+                                            <label for="image" class="form-label">Image</label>
+                                            <?php if ($announcement['image']): ?>
+                                                <div class="current-image mb-2">
+                                                    <img src="../<?php echo htmlspecialchars($announcement['image']); ?>" 
+                                                         alt="Current image" class="preview-image">
+                                                    <br><small class="text-muted">Current image</small>
+                                                </div>
+                                            <?php endif; ?>
+                                            <input type="file" class="form-control" id="image" name="image" 
+                                                   accept="image/*" onchange="previewImage(this)">
+                                            <div id="image-preview"></div>
                                         </div>
                                     </div>
                                 </div>
 
                                 <div class="d-flex justify-content-end">
                                     <button type="submit" class="btn btn-primary">
-                                        <i class="fas fa-save me-2"></i> Create Article
+                                        <i class="fas fa-save me-2"></i> Update Announcement
                                     </button>
                                 </div>
                             </form>
                         </div>
                     </div>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
@@ -244,8 +246,8 @@ if ($_POST) {
         // Initialize CKEditor
         CKEDITOR.replace('content');
 
-        function previewThumbnail(input) {
-            const preview = document.getElementById('thumbnail-preview');
+        function previewImage(input) {
+            const preview = document.getElementById('image-preview');
             preview.innerHTML = '';
             
             if (input.files && input.files[0]) {
@@ -255,26 +257,13 @@ if ($_POST) {
                     img.src = e.target.result;
                     img.className = 'preview-image';
                     preview.appendChild(img);
+                    
+                    const label = document.createElement('small');
+                    label.className = 'text-muted d-block';
+                    label.textContent = 'New image preview';
+                    preview.appendChild(label);
                 };
                 reader.readAsDataURL(input.files[0]);
-            }
-        }
-
-        function previewGallery(input) {
-            const preview = document.getElementById('gallery-preview');
-            preview.innerHTML = '';
-            
-            if (input.files) {
-                Array.from(input.files).forEach(file => {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        const img = document.createElement('img');
-                        img.src = e.target.result;
-                        img.className = 'preview-image me-2';
-                        preview.appendChild(img);
-                    };
-                    reader.readAsDataURL(file);
-                });
             }
         }
     </script>

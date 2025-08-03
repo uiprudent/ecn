@@ -166,6 +166,12 @@ if ($_POST && $article) {
                     <a class="nav-link" href="index.php">
                         <i class="fas fa-newspaper me-2"></i> News Management
                     </a>
+                    <a class="nav-link" href="announcements.php">
+                        <i class="fas fa-bullhorn me-2"></i> Announcements
+                    </a>
+                    <a class="nav-link" href="events.php">
+                        <i class="fas fa-calendar me-2"></i> Events
+                    </a>
                     <a class="nav-link" href="../index.html" target="_blank">
                         <i class="fas fa-external-link-alt me-2"></i> View Website
                     </a>

@@ -1477,6 +1477,256 @@
 
     <!-- template js -->
     <script src="assets/js/govity.js"></script>
+    
+    <script>
+        // Load dynamic announcements
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load announcements
+            fetch('api/get-announcements.php')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.announcements.length > 0) {
+                        const announcementsContainer = document.getElementById('announcements-content');
+                        announcementsContainer.innerHTML = '';
+                        
+                        data.announcements.slice(0, 3).forEach((announcement, index) => {
+                            const delay = (index + 1) * 100;
+                            const announcementHtml = `
+                                <div class="col-xl-4 col-lg-6 col-md-6 wow fadeInUp" data-wow-delay="${delay}ms">
+                                    <div class="news-one__single">
+                                        <div class="news-one__img">
+                                            <img src="${announcement.image || 'assets/images/blog/news-1-1.jpg'}" alt="">
+                                            <div class="news-one__tag">
+                                                <p>${announcement.category}</p>
+                                            </div>
+                                        </div>
+                                        <div class="news-one__content">
+                                            <ul class="news-one__meta list-unstyled">
+                                                <li>
+                                                    <div class="icon">
+                                                        <span class="icon-calendar"></span>
+                                                    </div>
+                                                    <div class="text">
+                                                        <p>${new Date(announcement.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                                                    </div>
+                                                </li>
+                                            </ul>
+                                            <h3 class="news-one__title"><a href="#">${announcement.title}</a></h3>
+                                            <p class="news-one__text">${announcement.excerpt}</p>
+                                            <div class="news-one__btn">
+                                                <a href="#">Read More</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                            announcementsContainer.innerHTML += announcementHtml;
+                        });
+                    }
+                })
+                .catch(error => console.error('Error loading announcements:', error));
+
+            // Load dynamic events
+            fetch('api/get-events.php')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.events.length > 0) {
+                        const eventsContainer = document.getElementById('events-content');
+                        eventsContainer.innerHTML = '';
+                        
+                        data.events.slice(0, 3).forEach((event, index) => {
+                            const delay = (index + 1) * 100;
+                            const eventHtml = `
+                                <div class="col-xl-4 col-lg-6 col-md-6 wow fadeInUp" data-wow-delay="${delay}ms">
+                                    <div class="news-one__single">
+                                        <div class="news-one__img">
+                                            <img src="${event.image || 'assets/images/events/event-1-1.jpg'}" alt="">
+                                            <div class="news-one__tag">
+                                                <p>Event</p>
+                                            </div>
+                                        </div>
+                                        <div class="news-one__content">
+                                            <ul class="news-one__meta list-unstyled">
+                                                <li>
+                                                    <div class="icon">
+                                                        <span class="icon-calendar"></span>
+                                                    </div>
+                                                    <div class="text">
+                                                        <p>${new Date(event.event_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                                                    </div>
+                                                </li>
+                                                <li>
+                                                    <div class="icon">
+                                                        <span class="icon-pin"></span>
+                                                    </div>
+                                                    <div class="text">
+                                                        <p>${event.location || 'TBA'}</p>
+                                                    </div>
+                                                </li>
+                                            </ul>
+                                            <h3 class="news-one__title"><a href="#">${event.title}</a></h3>
+                                            <p class="news-one__text">${event.excerpt}</p>
+                                            <div class="news-one__btn">
+                                                <a href="#">Read More</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                            eventsContainer.innerHTML += eventHtml;
+                        });
+                    }
+                })
+                .catch(error => console.error('Error loading events:', error));
+            // Load events
+            fetch('api/get-events.php')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.events.length > 0) {
+                        const eventsContainer = document.getElementById('events-content');
+                        eventsContainer.innerHTML = '';
+                        
+                        data.events.slice(0, 3).forEach((event, index) => {
+                            const delay = (index + 1) * 100;
+                            const eventDate = new Date(event.event_date);
+                            const eventHtml = `
+                                <div class="col-xl-4 col-lg-6 col-md-6 wow fadeInUp" data-wow-delay="${delay}ms">
+                                    <div class="event-one__single">
+                                        <div class="event-one__img">
+                                            <img src="${event.image || 'assets/images/events/event-1-1.jpg'}" alt="">
+                                            <div class="event-one__date">
+                                                <p>${eventDate.getDate()}<br><span>${eventDate.toLocaleDateString('en-US', { month: 'short' })}</span></p>
+                                            </div>
+                                        </div>
+                                        <div class="event-one__content">
+                                            <ul class="event-one__meta list-unstyled">
+                                                <li>
+                                                    <div class="icon">
+                                                        <span class="icon-clock"></span>
+                                                    </div>
+                                                    <div class="text">
+                                                        <p>${event.event_time || 'TBA'}</p>
+                                                    </div>
+                                                </li>
+                                                <li>
+                                                    <div class="icon">
+                                                        <span class="icon-pin"></span>
+                                                    </div>
+                                                    <div class="text">
+                                                        <p>${event.location || 'TBA'}</p>
+                                                    </div>
+                                                </li>
+                                            </ul>
+                                            <h3 class="event-one__title"><a href="#">${event.title}</a></h3>
+                                            <p class="event-one__text">${event.excerpt}</p>
+                                            <div class="event-one__btn">
+                                                <a href="#">Learn More</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                            eventsContainer.innerHTML += eventHtml;
+                        });
+                    }
+                })
+                .catch(error => console.error('Error loading events:', error));
+
+            // Load latest news
+            // Load Announcements
+            fetch('api/get-announcements.php')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.announcements.length > 0) {
+                        const announcementsContainer = document.querySelector('.news-two .row');
+                        announcementsContainer.innerHTML = '';
+                        
+                        data.announcements.slice(0, 3).forEach(announcement => {
+                            const announcementHtml = `
+                                <div class="col-xl-4 col-lg-6 col-md-6">
+                                    <div class="news-two__single">
+                                        <div class="news-two__img-box">
+                                            <div class="news-two__img">
+                                                <img src="${announcement.image || 'assets/images/blog/news-2-1.jpg'}" alt="">
+                                            </div>
+                                        </div>
+                                        <div class="news-two__content">
+                                            <ul class="news-two__meta list-unstyled">
+                                                <li>
+                                                    <div class="icon">
+                                                        <span class="icon-calendar"></span>
+                                                    </div>
+                                                    <div class="text">
+                                                        <p>${new Date(announcement.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                                                    </div>
+                                                </li>
+                                            </ul>
+                                            <h3 class="news-two__title"><a href="#">${announcement.title}</a></h3>
+                                            <p class="news-two__text">${announcement.excerpt}</p>
+                                            <div class="news-two__btn">
+                                                <a href="#">Read More</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                            announcementsContainer.innerHTML += announcementHtml;
+                        });
+                    }
+                })
+                .catch(error => console.error('Error loading announcements:', error));
+
+            // Load Events
+            // Load announcements
+            fetch('api/get-announcements.php')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.announcements.length > 0) {
+                        const announcementsContainer = document.getElementById('announcements-container');
+                        const newsContainer = document.getElementById('latest-news-content');
+                        
+                        data.announcements.slice(0, 3).forEach((announcement, index) => {
+                        data.news.slice(0, 3).forEach((article, index) => {
+                            const delay = (index + 1) * 100;
+                            const announcementHtml = `
+                                <div class="col-xl-4 col-lg-6 col-md-6 wow fadeInUp" data-wow-delay="${delay}ms">
+                                    <div class="news-two__single">
+                                        <div class="news-one__content">
+                                            <ul class="news-one__meta list-unstyled">
+                                                <li>
+                                                    <div class="icon">
+                                                        <span class="icon-calendar"></span>
+                                                    </div>
+                                                    <div class="text">
+                                                        <p>${new Date(article.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                                                    </div>
+                                                </li>
+                                                <li>
+                                                    <div class="icon">
+                                                        <span class="icon-user"></span>
+                                                    </div>
+                                                    <div class="text">
+                                                        <p>By ${article.author}</p>
+                                                    </div>
+                                                </li>
+                                            </ul>
+                                            <h3 class="news-one__title"><a href="news-detail.php?slug=${article.slug}">${article.title}</a></h3>
+                                            <p class="news-one__text">${article.excerpt}</p>
+                                            <div class="news-one__btn">
+                                                <a href="news-detail.php?slug=${article.slug}">Read More</a>
+                                            </div>
+                                                <p>${article.category}</p>
+                                    </div>
+                                            </div>
+                                </div>
+                            `;
+                            latestNewsContainer.innerHTML += newsHtml;
+                        });
+                    }
+                })
+                .catch(error => console.error('Error loading latest news:', error));
+        });
+    </script>
 </body>
 
 </html>
