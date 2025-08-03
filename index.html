@@ -1226,10 +1226,10 @@
                                                     </div>
                                                 </li>
                                             </ul>
-                                            <h3 class="news-one__title"><a href="#">${announcement.title}</a></h3>
+                                            <h3 class="news-one__title"><a href="announcement-detail.php?slug=${announcement.slug}">${announcement.title}</a></h3>
                                             <p class="news-one__text">${announcement.excerpt}</p>
                                         </div>
-                                    </div>
+                                                <a href="announcement-detail.php?slug=${announcement.slug}">Read More</a>
                                 </div>
                             `;
                             announcementsContainer.innerHTML += announcementHtml;
@@ -1273,7 +1273,7 @@
                                                         <p>${event.location}</p>
                                                     </div>
                                                 </li>
-                                                ` : ''}
+                                            <h3 class="news-one__title"><a href="event-detail.php?slug=${event.slug}">${event.title}</a></h3>
                                             </ul>
                                             <h3 class="event-one__title"><a href="#">${event.title}</a></h3>
                                             <p class="event-one__text">${event.excerpt}</p>
@@ -1327,7 +1327,7 @@
                                             <h3 class="news-one__title"><a href="news-detail.php?slug=${article.slug}">${article.title}</a></h3>
                                             <p class="news-one__text">${article.excerpt}</p>
                                             <div class="news-one__btn">
-                                                <a href="news-detail.php?slug=${article.slug}">Read More</a>
+                                                <a href="event-detail.php?slug=${event.slug}">Read More</a>
                                             </div>
                                         </div>
                                     </div>
