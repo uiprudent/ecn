@@ -48,14 +48,6 @@ app.get('/news', (req, res) => {
   res.sendFile(path.join(__dirname, 'news.html'));
 });
 
-app.get('/announcement-detail.php', (req, res) => {
-  res.sendFile(path.join(__dirname, 'announcement-detail.php'));
-});
-
-app.get('/event-detail.php', (req, res) => {
-  res.sendFile(path.join(__dirname, 'event-detail.php'));
-});
-
 // Catch all handler for other routes
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
