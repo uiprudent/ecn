@@ -1340,6 +1340,39 @@
                 .catch(error => console.error('Error loading news:', error));
         });
     </script>
+		<style>
+		/* Two-column mega menu for ECN Departments */
+		.main-menu .mega-menu-two-columns {
+			display: flex;
+			flex-wrap: wrap;
+			width: 500px;
+			padding: 10px;
+		}
+		
+		.main-menu .mega-menu-two-columns li {
+			width: 50%;
+			padding: 5px 10px;
+		}
+		
+		.main-menu .mega-menu-two-columns li a {
+			white-space: normal;
+			line-height: 1.4;
+			padding: 8px 0;
+			font-size: 13px;
+		}
+		
+		@media (max-width: 991px) {
+			.main-menu .mega-menu-two-columns {
+				flex-direction: column;
+				width: auto;
+			}
+			
+			.main-menu .mega-menu-two-columns li {
+				width: 100%;
+			}
+		}
+		</style>
+
 </body>
 
 </html>
