@@ -1,4 +1,7 @@
 <?php
+require_once 'auth.php';
+checkAuth();
+
 require_once '../config/database.php';
 
 // Handle delete action
@@ -70,6 +73,7 @@ $news = $stmt->fetchAll();
             <div class="col-md-3 col-lg-2 sidebar p-0">
                 <div class="p-3">
                     <h4 class="text-white">ECN Admin</h4>
+                    <small class="text-light">Welcome, <?php echo htmlspecialchars($_SESSION['admin_email']); ?></small>
                 </div>
                 <nav class="nav flex-column">
                     <a class="nav-link active" href="index.php">
@@ -83,6 +87,9 @@ $news = $stmt->fetchAll();
                     </a>
                     <a class="nav-link" href="../index.html" target="_blank">
                         <i class="fas fa-external-link-alt me-2"></i> View Website
+                    </a>
+                    <a class="nav-link" href="?logout=1" onclick="return confirm('Are you sure you want to logout?')">
+                        <i class="fas fa-sign-out-alt me-2"></i> Logout
                     </a>
                 </nav>
             </div>

@@ -1,4 +1,7 @@
 <?php
+require_once 'auth.php';
+checkAuth();
+
 require_once '../config/database.php';
 
 // Create news table
